@@ -2,17 +2,16 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 
 const Dashboard = () => {
-  const [events, setEvents] = useState([]); // Store all events
-  const [filter, setFilter] = useState("upcoming"); // Upcoming or past events
-  const [sortOrder, setSortOrder] = useState("asc"); // Sorting order
+  const [events, setEvents] = useState([]);
+  const [filter, setFilter] = useState("upcoming");
+  const [sortOrder, setSortOrder] = useState("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [user, setUser] = useState(null); // User state
-  const [loading, setLoading] = useState(true); // Loading state
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-  // Fetch user info (if logged in)
   const fetchUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -28,7 +27,6 @@ const Dashboard = () => {
     }
   };
 
-  // Fetch paginated events
   const fetchEvents = async (page = 1) => {
     setLoading(true);
     try {
@@ -51,7 +49,6 @@ const Dashboard = () => {
     fetchEvents();
   }, []);
 
-  // Filter out user's own events (if logged in)
   const filteredEvents = useMemo(() => {
     const userFiltered = user ? events.filter((event) => event.host !== user._id) : events;
     const now = Date.now();
@@ -61,7 +58,6 @@ const Dashboard = () => {
     });
   }, [user, events, filter]);
 
-  // Sort events by name
   const sortedEvents = useMemo(() => {
     return [...filteredEvents].sort((a, b) => {
       return sortOrder === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
@@ -69,64 +65,103 @@ const Dashboard = () => {
   }, [filteredEvents, sortOrder]);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Dashboard</h1>
+    <div className="min-h-screen p-6 bg-[#F6DED8]">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-[#B82132] border-b-2 border-[#D2665A] pb-2">
+          Event Dashboard
+        </h1>
 
-      {/* Filters & Sort */}
-      <div className="flex items-center space-x-4 mb-6">
-        <select
-          className="p-2 border border-gray-300 rounded"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        >
-          <option value="upcoming">Upcoming Events</option>
-          <option value="past">Past Events</option>
-        </select>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <select
+              className="px-4 py-2 rounded-lg border-2 border-[#B82132] bg-white text-gray-700 focus:outline-none focus:border-[#D2665A] transition-colors"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value="upcoming">Upcoming Events</option>
+              <option value="past">Past Events</option>
+            </select>
 
-        <select
-          className="p-2 border border-gray-300 rounded"
-          value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value)}
-        >
-          <option value="asc">Sort A-Z</option>
-          <option value="desc">Sort Z-A</option>
-        </select>
-      </div>
-
-      {/* Event List */}
-      {loading ? (
-        <p>Loading events...</p>
-      ) : sortedEvents.length === 0 ? (
-        <p>No events available</p>
-      ) : (
-        <div className="space-y-4">
-          {sortedEvents.map((event) => (
-            <div key={event._id} className="p-4 border border-gray-300 rounded shadow-sm">
-              <h3 className="text-xl font-semibold">{event.name}</h3>
-              <p className="text-gray-600">{event.description}</p>
-              <p className="text-sm text-gray-500">{new Date(event.date).toLocaleString()}</p>
-            </div>
-          ))}
+            <select
+              className="px-4 py-2 rounded-lg border-2 border-[#B82132] bg-white text-gray-700 focus:outline-none focus:border-[#D2665A] transition-colors"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+            >
+              <option value="asc">Sort A-Z</option>
+              <option value="desc">Sort Z-A</option>
+            </select>
+          </div>
         </div>
-      )}
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-4 space-x-2">
-        <button
-          className="p-2 border rounded"
-          disabled={currentPage === 1}
-          onClick={() => fetchEvents(currentPage - 1)}
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button
-          className="p-2 border rounded"
-          disabled={currentPage === totalPages}
-          onClick={() => fetchEvents(currentPage + 1)}
-        >
-          Next
-        </button>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="w-12 h-12 border-4 border-[#B82132] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : sortedEvents.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-xl shadow-lg">
+            <p className="text-xl text-gray-600">No events found</p>
+          </div>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {sortedEvents.map((event) => (
+              <div
+                key={event._id}
+                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-[#B82132]">{event.name}</h3>
+                  </div>
+                  <p className="text-gray-600 mb-3 line-clamp-3">{event.description}</p>
+                  <div className="flex items-center text-sm text-[#D2665A]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {new Date(event.date).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-center items-center mt-8 gap-4">
+          <button
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === 1
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-[#B82132] hover:bg-[#D2665A]"
+            } text-white transition-colors`}
+            disabled={currentPage === 1}
+            onClick={() => fetchEvents(currentPage - 1)}
+          >
+            Previous
+          </button>
+          <span className="text-gray-600">
+            Page <span className="font-bold text-[#B82132]">{currentPage}</span> of{" "}
+            <span className="font-bold text-[#B82132]">{totalPages}</span>
+          </span>
+          <button
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-[#B82132] hover:bg-[#D2665A]"
+            } text-white transition-colors`}
+            disabled={currentPage === totalPages}
+            onClick={() => fetchEvents(currentPage + 1)}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
