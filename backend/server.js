@@ -8,7 +8,12 @@ const event=require('./routes/event.route.js');
 
 app.use(express.json());
 dotenv.config();
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Your frontend URL
+    credentials: true, // Allow cookies (for authentication)
+  })
+);
 const port = process.env.PORT||5000;
 
 app.use('/api/auth',auth);

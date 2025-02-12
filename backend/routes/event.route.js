@@ -57,7 +57,6 @@ router.get('/my-events', authMiddleware, async (req, res) => {
 });
 
 // Route for creating an event (Authenticated Users Only)
-// Route for creating an event
 router.post('/', authMiddleware, async (req, res) => {
     const { name, description, date, location, maxLimit } = req.body;
     const userId = req.user._id; 
