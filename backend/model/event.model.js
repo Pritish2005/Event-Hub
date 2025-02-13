@@ -6,7 +6,6 @@ const EventSchema=new mongoose.Schema({
     date:{type:Date,required:true},
     location:{type:String,required:true},
     host:{type:mongoose.Schema.Types.ObjectId,ref:"User",required:true},
-    // attendees:[{type:mongoose.Schema.Types.ObjectId,ref:"User"}],
     maxLimit:{type:Number},
 },{
     timestamps:true

@@ -10,8 +10,11 @@ app.use(express.json());
 dotenv.config();
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend URL
-    credentials: true, // Allow cookies (for authentication)
+    origin: [
+      "http://localhost:5173", 
+      "https://event-management-frontend-ashen.vercel.app"
+    ],
+    credentials: true,
   })
 );
 const port = process.env.PORT||5000;
