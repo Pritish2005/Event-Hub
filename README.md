@@ -1,5 +1,3 @@
-Here’s a professional and well-structured **README.md** for your project. It explains the features, setup, and usage of your application in a clear and concise way.
-
 ---
 
 # EventHub - Event Management System 🎉
